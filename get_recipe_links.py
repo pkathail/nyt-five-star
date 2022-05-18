@@ -8,7 +8,6 @@ def main():
     page = 1
     recipe_links = []
     while page:
-        print(page)
         page_contents = get_page_contents(page)
         recipe_links.extend(get_recipe_links_on_page(page_contents))
         if on_last_page(page_contents):
