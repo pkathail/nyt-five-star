@@ -1,7 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 import pandas as pd
-from tqdm import tqdm
+import time
 
 RECIPE_URL_BASE = "https://cooking.nytimes.com"
 RECIPE_LINK_FILE = "recipe_links.txt"
@@ -15,12 +15,18 @@ def main():
     recipe_links = recipe_links.split("\n")
 
     recipe_information = []
-    for recipe_link in tqdm(recipe_links):
-        recipe_information.append(get_recipe_information(recipe_link))
-        
-    recipe_information = pd.DataFrame.from_records(recipe_information)
-    recipe_information.to_csv(RECIPE_METADATA_FILE, header=True, index=True)
+    for i, recipe_link in enumerate(recipe_links[649:]):
+        if (i % 100) == 0:  # save intermediate progress
+            pd.DataFrame.from_records(recipe_information).to_csv(RECIPE_METADATA_FILE, header=True, index=True)
 
+        try:
+            recipe_info = get_recipe_information(recipe_link)
+        except:
+            time.sleep(30)  # wait and retry if I've sent too many requests
+            recipe_info = get_recipe_information(recipe_link)
+        recipe_information.append(recipe_info)
+        
+    pd.DataFrame.from_records(recipe_information).to_csv(RECIPE_METADATA_FILE, header=True, index=True)
 
 def get_recipe_information(recipe_link):
     page_contents = requests.get(f"{RECIPE_URL_BASE}{recipe_link}")
