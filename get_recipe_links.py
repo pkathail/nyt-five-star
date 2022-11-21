@@ -1,5 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
+import time
 
 RECIPE_SEARCH_URL = "https://cooking.nytimes.com/search?q=&page={page}"
 RECIPE_LINK_FILE = "recipe_links.txt"
@@ -9,6 +10,7 @@ def main():
     recipe_links = []
     while page:
         page_contents = get_page_contents(page)
+        time.sleep(10) 
         recipe_links.extend(get_recipe_links_on_page(page_contents))
         if on_last_page(page_contents):
             page = False
